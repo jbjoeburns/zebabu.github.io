@@ -19,7 +19,7 @@ const Homepage = () => {
 
   const handleSubmit = (event) => {
     event.preventDefault();
-    navigate('/caloric',{state:{selectedRole:selectedRole, selectedMechanic: selectedMechanic}});
+    navigate('/caloric',{state:{selectedRole:selectedRole, selectedMechanic: selectedMechanic, roleList: roleList}});
   }
 
   return (
