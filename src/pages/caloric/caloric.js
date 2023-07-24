@@ -12,28 +12,39 @@ const Caloric = () => {
     const location = useLocation();
     const [movementNumber, setMovementNumber] = useState(1);
     const [debuffs] = useState(["beacon", "fire", "fire", "wind"]);
-    const [groupDebuffs, setGroupDebuffs] = useState([]);
     const playerDebuff = useRef("");
+    const [groupStatus, setGroupStatus] = useState([]);
     const [timer, setTimer] = useState(12);
     const [consecutiveClears, setConsecutiveClears] = useState(-1)
     const [open, setOpen] = useState(true)
-    
+    const groupOne = ["MT", "M1", "R1", "H1"]
     useEffect(() => {
     const fetchData = async () => {
         let debuffs1 = debuffs.sort(() => Math.random() - 0.5)
         let debuffs2 = debuffs.sort(() => Math.random() - 0.5)
-        setGroupDebuffs(debuffs1.concat(debuffs2))
+        setGroupStatus(Object.assign(...location.state.roleList.map((k, i) =>({
+            [k]: debuffs1.concat(debuffs2)[i] }))))
+        //setGroupStatus(location.state.roleList.map((role, i) => ({ role, debuff: debuffs1.concat(debuffs2)[i] })))
     };
     fetchData();
     }, [consecutiveClears])
 
     function handleStart () {
+        console.log(groupStatus)
         setOpen(!open);
         setConsecutiveClears(0)
     }
 
     function handlePosition (value) {
-
+        console.log(value)
+        if (location.state.selectedRole === "MT" ) {
+            console.log("pass1")
+            console.log(groupStatus[2])
+            console.log(groupStatus)
+            if (groupStatus[2] === "beacon" && value === "c") {
+                console.log("pass 2!")
+            }
+        }
     }
     return (
         <div className = "container">
@@ -53,17 +64,7 @@ const Caloric = () => {
                 DEBUFFS: 
                 <br/>
                 {
-                    location.state.roleList.map((role, index) => {
-                        if (role === location.state.selectedRole) {
-                            playerDebuff.current = groupDebuffs[index]
-                        }
-                        return (
-                            <>
-                                {role}: {groupDebuffs[index]}
-                                <br/>
-                            </>
-                        )
-                    })
+                    Object.entries(groupStatus).map( ([key, value]) => <>{key}: {value}<br></br></>)
                 }
                 <br/>
                 TIMER: {timer}
