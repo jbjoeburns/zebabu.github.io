@@ -9,35 +9,46 @@ import {useLocation} from 'react-router-dom';
 import "./caloric.css";
 
 const Caloric = () => {
+    // takes info from homepage
     const location = useLocation();
-    const [partnerIndex, setPartnerIndex] = useState();
+    // tracks which movement we're on
     const [movementNumber, setMovementNumber] = useState(1);
+    // list of debuffs to randomise
     const [debuffs] = useState(["beacon", "fire", "fire", "wind"]);
-    const playerDebuff = useRef("");
+    // debuffs each group member has; object
     const [groupStatus, setGroupStatus] = useState([]);
+    // timer, counts down from 12
     const [timer, setTimer] = useState(12);
+    // tracks successful clears
     const [consecutiveClears, setConsecutiveClears] = useState(-1)
+    // used to display info once start is pressed
     const [open, setOpen] = useState(true)
-    const groupOne = ["MT", "M1", "R1", "H1"]
+    
     useEffect(() => {
-    const fetchData = async () => {
-        let debuffs1 = debuffs.sort(() => Math.random() - 0.5)
-        let debuffs2 = debuffs.sort(() => Math.random() - 0.5)
-        setGroupStatus(Object.assign(...location.state.roleList.map((k, i) =>({
-            [k]: debuffs1.concat(debuffs2)[i] }))))
-        //setGroupStatus(location.state.roleList.map((role, i) => ({ role, debuff: debuffs1.concat(debuffs2)[i] })))
+        // function to randomise debuffs
+        const randomiseDebuffs = async () => {
+            let debuffs1 = debuffs.sort(() => Math.random() - 0.5)
+            let debuffs2 = debuffs.sort(() => Math.random() - 0.5)
+            setGroupStatus(Object.assign(...location.state.roleList.map((k, i) =>({
+                [k]: debuffs1.concat(debuffs2)[i] }))))
     };
-    fetchData();
+    randomiseDebuffs();
+    // sets timer and movement counter
+    setTimer(12)
+    setMovementNumber(1)
+    // re-randomises and resets timer+counter once the mechanic is cleared
     }, [consecutiveClears])
 
+    // function to start the sim once the start button is pressed
     function handleStart () {
         console.log(groupStatus)
         setOpen(!open);
         setConsecutiveClears(0)
     }
 
+    // the function that handles all the fail/pass states once a position is selected from the map
     function handlePosition (value) {
-        // console.log(Object.keys(groupStatus)[0])
+        // defines indexes for the player, and their partner for use in fail checks
         let keysArr = Object.keys(groupStatus)
         let partnerIndex = keysArr.indexOf(location.state.selectedRole)
         let playerIndex = partnerIndex
@@ -49,30 +60,41 @@ const Caloric = () => {
             // player is in group 2, so partner is above them in list of roles
             partnerIndex--
         }
+
+        // partner role name variable
         let partner = Object.keys(groupStatus)[partnerIndex]
-        // console.log(groupStatus[partner])
+        
+        // for testing 
+        console.log("movement ", movementNumber)
         console.log("player is ", groupStatus[location.state.selectedRole])
         console.log("their partner is ", groupStatus[partner])
         console.log("player went to ", value)
-        if (groupStatus[location.state.selectedRole] === "beacon") {
-            if (value === "D" && playerIndex < 4 || value === "B" && playerIndex > 3){
+
+        // checks if movement was correct, for initial movements
+        if (movementNumber === 1) {
+            if (groupStatus[location.state.selectedRole] === "beacon") {
+                if (value === "D" && playerIndex < 4 || value === "B" && playerIndex > 3){
+                    console.log("liv")
+                }
+                else {
+                    console.log("ded")
+                }
+            }
+            else if (groupStatus[partner] === "beacon") {
+                if (value === "C" && playerIndex < 4 || value === "A" && playerIndex > 3){
+                    console.log("liv")
+                }
+                else {
+                    console.log("ded")
+                }
+            }
+            else if (value === "M") {
                 console.log("liv")
             }
-            else {
-                console.log("ded")
-            }
         }
-        else if (groupStatus[partner] === "beacon") {
-            if (value === "C" && playerIndex < 4 || value === "A" && playerIndex > 3){
-                console.log("liv")
-            }
-            else {
-                console.log("ded")
-            }
-        }
-        else if (value === "M") {
-            console.log("liv")
-        }
+
+        // checks if movement was correct, for second movements
+
     }
     return (
         <div className = "container">
