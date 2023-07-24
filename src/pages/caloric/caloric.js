@@ -10,6 +10,7 @@ import "./caloric.css";
 
 const Caloric = () => {
     const location = useLocation();
+    const [partnerIndex, setPartnerIndex] = useState();
     const [movementNumber, setMovementNumber] = useState(1);
     const [debuffs] = useState(["beacon", "fire", "fire", "wind"]);
     const playerDebuff = useRef("");
@@ -36,14 +37,41 @@ const Caloric = () => {
     }
 
     function handlePosition (value) {
-        console.log(value)
-        if (location.state.selectedRole === "MT" ) {
-            console.log("pass1")
-            console.log(groupStatus[2])
-            console.log(groupStatus)
-            if (groupStatus[2] === "beacon" && value === "c") {
-                console.log("pass 2!")
+        // console.log(Object.keys(groupStatus)[0])
+        let keysArr = Object.keys(groupStatus)
+        let partnerIndex = keysArr.indexOf(location.state.selectedRole)
+        let playerIndex = partnerIndex
+        if(partnerIndex % 2 == 0) {
+            // player is in group 1, so partner is below them in list of roles
+            partnerIndex++
+        }
+        else {
+            // player is in group 2, so partner is above them in list of roles
+            partnerIndex--
+        }
+        let partner = Object.keys(groupStatus)[partnerIndex]
+        // console.log(groupStatus[partner])
+        console.log("player is ", groupStatus[location.state.selectedRole])
+        console.log("their partner is ", groupStatus[partner])
+        console.log("player went to ", value)
+        if (groupStatus[location.state.selectedRole] === "beacon") {
+            if (value === "D" && playerIndex < 4 || value === "B" && playerIndex > 3){
+                console.log("liv")
             }
+            else {
+                console.log("ded")
+            }
+        }
+        else if (groupStatus[partner] === "beacon") {
+            if (value === "C" && playerIndex < 4 || value === "A" && playerIndex > 3){
+                console.log("liv")
+            }
+            else {
+                console.log("ded")
+            }
+        }
+        else if (value === "M") {
+            console.log("liv")
         }
     }
     return (
