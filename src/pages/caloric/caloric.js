@@ -26,7 +26,9 @@ const Caloric = () => {
     // used to display info once start is pressed
     const [open, setOpen] = useState(true)
     // checks if you failed, so useeffect can be triggered and debuffs re-randomised (toggles between true and false to do this)
-    const [failCheck, setFailCheck] = useState(true)
+    const [failCheck, setFailCheck] = useState(false)
+    // checks if you won
+    const [winCheck, setWinCheck] = useState(false)
     useEffect(() => {
         // function to randomise debuffs
         const randomiseDebuffs = async () => {
@@ -40,6 +42,7 @@ const Caloric = () => {
     setTimer(12)
     setMovementNumber(1)
     setPrevPos("")
+    setWinCheck(false)
     // re-randomises and resets timer+counter+previous position hook once the mechanic is cleared
     }, [consecutiveClears, failCheck])
 
@@ -47,6 +50,7 @@ const Caloric = () => {
     function handleStart () {
         console.log(groupStatus)
         setOpen(!open);
+        setFailCheck(false)
         setConsecutiveClears(0)
     }
 
@@ -85,6 +89,7 @@ const Caloric = () => {
                 else {
                     console.log("ded")
                     setFailCheck(!failCheck)
+                    setOpen(!open)
                 }
             }
             else if (groupStatus[partner] === "beacon") {
@@ -96,6 +101,7 @@ const Caloric = () => {
                 else {
                     console.log("ded")
                     setFailCheck(!failCheck)
+                    setOpen(!open)
                 }
             }
             else if (value === "M") {
@@ -113,33 +119,43 @@ const Caloric = () => {
                     // then check if opposite debuff is on position they went to
                     // could do this by checking each even index (grp1)/odd index (grp2) for fire
                     // if group 1 go C, if group 2 go A
-
+// NEED TO ADD MOVEMENT 3 SPECIFICALLY FOR M WIND PLAYERS
                     //if group 1
                     if(playerIndex % 2 === 0 && value === "C") {
                         console.log("liv")
                         setConsecutiveClears(consecutiveClears + 1)
+                        setWinCheck(true)
+                        setOpen(!open)
                     }
                     //if group 2
                     else if(playerIndex % 2 !== 0 && value === "A") {
                         console.log("liv")
                         setConsecutiveClears(consecutiveClears + 1)
+                        setWinCheck(true)
+                        setOpen(!open)
                     }
                     else {
                         console.log("ded")
                         setFailCheck(!failCheck)
+                        setOpen(!open)
                     }
                 }
                 else if (prevPos === "C" && value === "S") {
                     console.log("liv")
                     setConsecutiveClears(consecutiveClears + 1)
+                    setWinCheck(true)
+                    setOpen(!open)
                 }
                 else if (prevPos === "A" && value === "N") {
                     console.log("liv")
                     setConsecutiveClears(consecutiveClears + 1)
+                    setWinCheck(true)
+                    setOpen(!open)
                 }
                 else {
                     console.log("ded")
                     setFailCheck(!failCheck)
+                    setOpen(!open)
                 }
             }
             if (groupStatus[location.state.selectedRole] === "fire") {
@@ -149,24 +165,38 @@ const Caloric = () => {
                     if(playerIndex % 2 === 0 && value === "D") {
                         console.log("liv")
                             setConsecutiveClears(consecutiveClears + 1)
+                            setWinCheck(true)
+                            setOpen(!open)
                         }
                         //if group 2
                         else if(playerIndex % 2 !== 0 && value === "B") {
                             console.log("liv")
                             setConsecutiveClears(consecutiveClears + 1)
+                            setWinCheck(true)
+                            setOpen(!open)
                         }
                         else {
                         console.log("ded")
-                            setFailCheck(!failCheck)
+                        setFailCheck(!failCheck)
+                        setOpen(!open)
                         }
                 }
-                else if (prevPos === "A" && value === "N") {
+                else if (prevPos === "C" && value === "D") {
                     console.log("liv")
                     setConsecutiveClears(consecutiveClears + 1)
+                    setWinCheck(true)
+                    setOpen(!open)
+                }
+                else if (prevPos === "A" && value === "B") {
+                    console.log("liv")
+                    setConsecutiveClears(consecutiveClears + 1)
+                    setWinCheck(true)
+                    setOpen(!open)
                 }
                 else {
                     console.log("ded")
                     setFailCheck(!failCheck)
+                    setOpen(!open)
                 }
             }
         }
@@ -176,6 +206,21 @@ const Caloric = () => {
             {open ?
                 <>
                 <div>{location.state.selectedMechanic} sim! Click start!</div>
+                {failCheck ?
+                    <b>
+                        LOL u died XD
+                    </b>
+                        : 
+                    <>
+                        {winCheck ? 
+                            <b>
+                                omg U winned??
+                            </b> 
+                            :
+                            <></>
+                        }
+                    </>
+                }
                 <button onClick={() => handleStart()}>START</button>
                 </> 
                 :
