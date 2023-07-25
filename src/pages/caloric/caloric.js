@@ -13,6 +13,8 @@ const Caloric = () => {
     const location = useLocation();
     // tracks which movement we're on
     const [movementNumber, setMovementNumber] = useState(1);
+    // tracks previous position
+    const [prevPos, setPrevPos] = useState("");
     // list of debuffs to randomise
     const [debuffs] = useState(["beacon", "fire", "fire", "wind"]);
     // debuffs each group member has; object
@@ -23,7 +25,8 @@ const Caloric = () => {
     const [consecutiveClears, setConsecutiveClears] = useState(-1)
     // used to display info once start is pressed
     const [open, setOpen] = useState(true)
-    
+    // checks if you failed, so useeffect can be triggered and debuffs re-randomised (toggles between true and false to do this)
+    const [failCheck, setFailCheck] = useState(true)
     useEffect(() => {
         // function to randomise debuffs
         const randomiseDebuffs = async () => {
@@ -33,11 +36,12 @@ const Caloric = () => {
                 [k]: debuffs1.concat(debuffs2)[i] }))))
     };
     randomiseDebuffs();
-    // sets timer and movement counter
+    // sets timer and movement counter and empties previous position hook
     setTimer(12)
     setMovementNumber(1)
-    // re-randomises and resets timer+counter once the mechanic is cleared
-    }, [consecutiveClears])
+    setPrevPos("")
+    // re-randomises and resets timer+counter+previous position hook once the mechanic is cleared
+    }, [consecutiveClears, failCheck])
 
     // function to start the sim once the start button is pressed
     function handleStart () {
@@ -52,7 +56,7 @@ const Caloric = () => {
         let keysArr = Object.keys(groupStatus)
         let partnerIndex = keysArr.indexOf(location.state.selectedRole)
         let playerIndex = partnerIndex
-        if(partnerIndex % 2 == 0) {
+        if(playerIndex % 2 == 0) {
             // player is in group 1, so partner is below them in list of roles
             partnerIndex++
         }
@@ -75,26 +79,97 @@ const Caloric = () => {
             if (groupStatus[location.state.selectedRole] === "beacon") {
                 if (value === "D" && playerIndex < 4 || value === "B" && playerIndex > 3){
                     console.log("liv")
+                    setMovementNumber(2)
+                    setPrevPos(value)
                 }
                 else {
                     console.log("ded")
+                    setFailCheck(!failCheck)
                 }
             }
             else if (groupStatus[partner] === "beacon") {
                 if (value === "C" && playerIndex < 4 || value === "A" && playerIndex > 3){
                     console.log("liv")
+                    setMovementNumber(2)
+                    setPrevPos(value)
                 }
                 else {
                     console.log("ded")
+                    setFailCheck(!failCheck)
                 }
             }
             else if (value === "M") {
                 console.log("liv")
+                setMovementNumber(2)
+                setPrevPos(value)
             }
         }
 
         // checks if movement was correct, for second movements
+        if (movementNumber === 2) {
+            if (groupStatus[location.state.selectedRole] === "wind") {
+                if (prevPos === "M") {
+                    // basically want to check if group 1 (go either D or C) or group 2 (A or B)
+                    // then check if opposite debuff is on position they went to
+                    // could do this by checking each even index (grp1)/odd index (grp2) for fire
+                    // if group 1 go C, if group 2 go A
 
+                    //if group 1
+                    if(playerIndex % 2 === 0 && value === "C") {
+                        console.log("liv")
+                        setConsecutiveClears(consecutiveClears + 1)
+                    }
+                    //if group 2
+                    else if(playerIndex % 2 !== 0 && value === "A") {
+                        console.log("liv")
+                        setConsecutiveClears(consecutiveClears + 1)
+                    }
+                    else {
+                        console.log("ded")
+                        setFailCheck(!failCheck)
+                    }
+                }
+                else if (prevPos === "C" && value === "S") {
+                    console.log("liv")
+                    setConsecutiveClears(consecutiveClears + 1)
+                }
+                else if (prevPos === "A" && value === "N") {
+                    console.log("liv")
+                    setConsecutiveClears(consecutiveClears + 1)
+                }
+                else {
+                    console.log("ded")
+                    setFailCheck(!failCheck)
+                }
+            }
+            if (groupStatus[location.state.selectedRole] === "fire") {
+                if (prevPos === "M") {
+                    // same as fire but if group 1 go D, if group 1 go B
+                    //if group 1
+                    if(playerIndex % 2 === 0 && value === "D") {
+                        console.log("liv")
+                            setConsecutiveClears(consecutiveClears + 1)
+                        }
+                        //if group 2
+                        else if(playerIndex % 2 !== 0 && value === "B") {
+                            console.log("liv")
+                            setConsecutiveClears(consecutiveClears + 1)
+                        }
+                        else {
+                        console.log("ded")
+                            setFailCheck(!failCheck)
+                        }
+                }
+                else if (prevPos === "A" && value === "N") {
+                    console.log("liv")
+                    setConsecutiveClears(consecutiveClears + 1)
+                }
+                else {
+                    console.log("ded")
+                    setFailCheck(!failCheck)
+                }
+            }
+        }
     }
     return (
         <div className = "container">
