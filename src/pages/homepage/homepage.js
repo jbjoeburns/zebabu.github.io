@@ -1,7 +1,9 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import "./homepage.css";
 
 const Homepage = () => {
+  const navigate = useNavigate();
   const [selectedRole, setSelectedRole] = useState("MT");
   const [selectedMechanic, setSelectedMechanic] = useState("Caloric");
   const [roleList]  = useState(["MT", "OT", "H1", "H2", "M1", "M2", "R1", "R2"])
@@ -17,8 +19,7 @@ const Homepage = () => {
 
   const handleSubmit = (event) => {
     event.preventDefault();
-    alert(selectedRole)
-    alert(selectedMechanic)
+    navigate('/caloric',{state:{selectedRole:selectedRole, selectedMechanic: selectedMechanic, roleList: roleList}});
   }
 
   return (
