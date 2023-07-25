@@ -1,10 +1,7 @@
-// instead make a dictionary of role:debuff:group
-// on first button press (initial positions), check who has beacon then check if correct position value was given
-// on second button press do the same but check current debuff of middle, and group then use this to determine expected position, explain that if you dont move yet you click current position
-// on third movement then check if wind and current position
-// add usehook to track current position
+// make victory/failstates a function with incrementing movement number as a way to refactor
 
-import React, { useState, useEffect, useRef } from "react";
+
+import React, { useState, useEffect } from "react";
 import {useLocation} from 'react-router-dom';
 import "./caloric.css";
 
@@ -42,7 +39,6 @@ const Caloric = () => {
     setTimer(12)
     setMovementNumber(1)
     setPrevPos("")
-    setWinCheck(false)
     // re-randomises and resets timer+counter+previous position hook once the mechanic is cleared
     }, [consecutiveClears, failCheck])
 
@@ -51,6 +47,7 @@ const Caloric = () => {
         console.log(groupStatus)
         setOpen(!open);
         setFailCheck(false)
+        setWinCheck(false)
         setConsecutiveClears(0)
     }
 
@@ -113,6 +110,25 @@ const Caloric = () => {
 
         // checks if movement was correct, for second movements
         if (movementNumber === 2) {
+            if (groupStatus[location.state.selectedRole] === "beacon") {
+                if (prevPos === "D" && value === "1") {
+                    console.log("liv")
+                    setConsecutiveClears(consecutiveClears + 1)
+                    setWinCheck(true)
+                    setOpen(!open)
+                }
+                else if (prevPos === "B" && value === "2") {
+                    console.log("liv")
+                    setConsecutiveClears(consecutiveClears + 1)
+                    setWinCheck(true)
+                    setOpen(!open)
+                }
+                else {
+                    console.log("ded")
+                    setFailCheck(!failCheck)
+                    setOpen(!open)
+                }
+            }
             if (groupStatus[location.state.selectedRole] === "wind") {
                 if (prevPos === "M") {
                     // basically want to check if group 1 (go either D or C) or group 2 (A or B)
@@ -123,16 +139,14 @@ const Caloric = () => {
                     //if group 1
                     if(playerIndex % 2 === 0 && value === "C") {
                         console.log("liv")
-                        setConsecutiveClears(consecutiveClears + 1)
-                        setWinCheck(true)
-                        setOpen(!open)
+                        setMovementNumber(3)
+                        setPrevPos(value)
                     }
                     //if group 2
                     else if(playerIndex % 2 !== 0 && value === "A") {
                         console.log("liv")
-                        setConsecutiveClears(consecutiveClears + 1)
-                        setWinCheck(true)
-                        setOpen(!open)
+                        setMovementNumber(3)
+                        setPrevPos(value)
                     }
                     else {
                         console.log("ded")
@@ -198,6 +212,25 @@ const Caloric = () => {
                     setFailCheck(!failCheck)
                     setOpen(!open)
                 }
+            } 
+        }
+        if (movementNumber === 3) {
+            if (prevPos === "C" && value === "S") {
+                console.log("liv")
+                setConsecutiveClears(consecutiveClears + 1)
+                setWinCheck(true)
+                setOpen(!open)
+            }
+            else if (prevPos === "A" && value === "N") {
+                console.log("liv")
+                setConsecutiveClears(consecutiveClears + 1)
+                setWinCheck(true)
+                setOpen(!open)
+            }
+            else {
+                console.log("ded")
+                setFailCheck(!failCheck)
+                setOpen(!open)
             }
         }
     }
